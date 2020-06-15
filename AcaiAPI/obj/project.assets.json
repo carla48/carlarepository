@@ -13205,11 +13205,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\uds\\AcaiAPI\\AcaiAPI\\AcaiAPI.csproj",
+      "projectUniqueName": "C:\\carla\\carlarepository\\carlarepository\\AcaiAPI\\AcaiAPI.csproj",
       "projectName": "AcaiAPI",
-      "projectPath": "C:\\uds\\AcaiAPI\\AcaiAPI\\AcaiAPI.csproj",
+      "projectPath": "C:\\carla\\carlarepository\\carlarepository\\AcaiAPI\\AcaiAPI.csproj",
       "packagesPath": "C:\\Users\\carla\\.nuget\\packages\\",
-      "outputPath": "C:\\uds\\AcaiAPI\\AcaiAPI\\obj\\",
+      "outputPath": "C:\\carla\\carlarepository\\carlarepository\\AcaiAPI\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

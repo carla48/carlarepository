@@ -9,7 +9,7 @@ namespace AcaiAPI.Model
     {
         public Personalizacao()
         {
-           
+            Pedidos = new List<PedidoPersonalizacao>();
         }
         public decimal ValorAdicional { get; set; }
 

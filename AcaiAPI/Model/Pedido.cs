@@ -11,7 +11,7 @@ namespace AcaiAPI.Model
     {
         public Pedido()
         {
-            //this.Personalizacoes = new HashSet<Personalizacao>();
+            this.Personalizacoes = new List<PedidoPersonalizacao>();
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

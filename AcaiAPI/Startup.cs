@@ -36,6 +36,7 @@ namespace AcaiAPI
             services.AddTransient<ITamanhoRepository, TamanhoRepository>();
             services.AddTransient<IPersonalizacaoRepository, PersonalizacaoRepository>();
             services.AddTransient<IPedidoRepository, PedidoRepository>();
+            services.AddTransient<IPedidoPersonalizacaoRepository, PedidoPersonalizacaoRepository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 

@@ -18,32 +18,13 @@ namespace AcaiAPI.Repository
 
         }
         public long Add(Pedido pedido)
-        {
-            //_contexto.Sabores.Add(pedido.Sabor);
-            //_contexto.Tamanhos.Add(pedido.Tamanho);
-            
+        {   
             _contexto.Pedidos.Add(pedido);
             
             _contexto.SaveChanges();
 
             return pedido.Id;
 
-        }
-
-        public void AddPersonalizacao(Pedido pedido)
-        {
-            /*if (pedido.Personalizacoes != null && pedido.Personalizacoes.Count > 0)
-            {
-                foreach (PedidoPersonalizacao personalizacao in pedido.Personalizacoes)
-                {
-                    _contexto.PedidoPersonalizacoes.Add(personalizacao);
-                    //_contexto.Personalizacoes.Add(personalizacao);
-                    //_contexto.SaveChanges();
-                }
-            }*/
-            //_contexto.Update(pedido);
-            _contexto.Entry(pedido).State = EntityState.Modified;
-            _contexto.SaveChanges();
         }
 
         public void AddPersonalizacoesPedido(Pedido pedido)

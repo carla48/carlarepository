@@ -38,16 +38,11 @@ namespace AcaiAPI.Data
                 .HasOne(x => x.Personalizacao)
                 .WithMany(m => m.Pedidos)
                 .HasForeignKey(x => x.PersonalizacaoId);
-            /*modelBuilder.Entity<Pedido>(entity =>
-            {
-                entity.HasOne(u => u.PersonalizacaoModel).WithMany(u => u.TeamMembers)
-                entity.HasOne(p => p.Personalizacoes);
-            });
-            modelBuilder.Entity<Personalizacao>(entity =>
-            {
-                entity.HasMany(p => p.Pedidos);
-            });*/
-            //modelBuilder.Entity<Pedido>().HasMany(pedido => pedido.Personalizacoes).WithOne(pedido => pedido.PersonalizacaoModel)
+
+            var config = modelBuilder.Entity<PedidoPersonalizacao>();
+            config.ToTable("pedidospersonalizacoes");
+
+            base.OnModelCreating(modelBuilder);
         }                  
         public DbSet<Pedido> Pedidos { get; set; }
 

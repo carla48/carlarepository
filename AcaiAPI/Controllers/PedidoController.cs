@@ -16,16 +16,19 @@ namespace AcaiAPI.Controllers
         private readonly ITamanhoRepository _tamanhoRepository;
         private readonly IPersonalizacaoRepository _personalizacaoRepository;
         private readonly IPedidoRepository _pedidoRepository;
+        private readonly IPedidoPersonalizacaoRepository _pedidoPersonalizacaoRepository;
 
         public PedidoController(ISaborRepository saborRepository,
                                 ITamanhoRepository tamanhoRepository,
                                 IPersonalizacaoRepository personalizacaoRepository,
-                                IPedidoRepository pedidoRepository)
+                                IPedidoRepository pedidoRepository,
+                                IPedidoPersonalizacaoRepository pedidoPersonalizacaoRepository)
         {
             _saborRepository = saborRepository;
             _tamanhoRepository = tamanhoRepository;
             _personalizacaoRepository = personalizacaoRepository;
             _pedidoRepository = pedidoRepository;
+            _pedidoPersonalizacaoRepository = pedidoPersonalizacaoRepository;
 
         }
 
@@ -40,13 +43,11 @@ namespace AcaiAPI.Controllers
             pedido.SaborId = pedido.Sabor.Id;
             pedido.Tamanho = _tamanhoRepository.Find(value.Tamanho);
             pedido.TamanhoId = pedido.Tamanho.Id;
-            //long pedidoId = _pedidoRepository.Add(pedido);
-
-            //Pedido pedidoDb = _pedidoRepository.Find(pedidoId);
+            
             List<Personalizacao> personalizacoes = _personalizacaoRepository.GetPersonalizacoesPelosIds(value.Personalizacoes).ToList();
-            if(personalizacoes != null && personalizacoes.Count > 0)
+            
+            if (personalizacoes != null && personalizacoes.Count > 0)
             {
-                pedido.Personalizacoes = new List<PedidoPersonalizacao>();
                 foreach(Personalizacao item in personalizacoes)
                 {
                     PedidoPersonalizacao pedidoPersonalizacao = new PedidoPersonalizacao();
@@ -58,11 +59,11 @@ namespace AcaiAPI.Controllers
                         ValorAdicional = item.ValorAdicional
                     };
                     pedidoPersonalizacao.Pedido = pedido;
-                   
-                    //pedidoPersonalizacaos.Add(pedidoPersonalizacao);
+                    pedidoPersonalizacao.Personalizacao.Pedidos.Add(pedidoPersonalizacao);
+                    pedidoPersonalizacao.Pedido.Personalizacoes.Add(pedidoPersonalizacao);
+                    _pedidoPersonalizacaoRepository.Add(pedidoPersonalizacao);
                     pedido.Personalizacoes.Add(pedidoPersonalizacao);
                 }
-                //pedido.Personalizacoes = pedidoPersonalizacaos;
             }
             pedido.TempoPreparo = GetTempoPreparo(pedido, personalizacoes);
             pedido.ValorTotal = GetValorTotal(pedido, personalizacoes);
@@ -70,12 +71,6 @@ namespace AcaiAPI.Controllers
             
         }
 
-        /*[HttpGet]
-        public ActionResult<IEnumerable<Tamanho>> Get()
-        {
-           return _tamanhoRepository.GetAll().ToList();
-        }
-        */
         [HttpGet]
         public ActionResult<IEnumerable<VisualizarPedidoModel>> Get()
         {
@@ -83,7 +78,6 @@ namespace AcaiAPI.Controllers
             IList<VisualizarPedidoModel> pedidosVisualizados = new List<VisualizarPedidoModel>();
             if (todosPedidos != null && todosPedidos.Count > 0)
             {
-                //pedidosVisualizados = new List<VisualizarPedidoModel>();
                 foreach (Pedido pedidoGravado in todosPedidos)
                 {
                     pedidosVisualizados.Add(GetPedidoVisualizado(pedidoGravado));
@@ -151,7 +145,10 @@ namespace AcaiAPI.Controllers
         private VisualizarPedidoModel GetPedidoVisualizado(Pedido pedidoGravado)
         {
             VisualizarPedidoModel result = new VisualizarPedidoModel();
+            pedidoGravado.Tamanho = _tamanhoRepository.Find(pedidoGravado.TamanhoId);
+            result.Id = pedidoGravado.Id;
             result.Tamanho = pedidoGravado.Tamanho != null ? pedidoGravado.Tamanho.Description : "";
+            pedidoGravado.Sabor = _saborRepository.Find(pedidoGravado.SaborId);
             result.Sabor = pedidoGravado.Sabor != null ? pedidoGravado.Sabor.Description : "";
             result.Preco = "00.00";
             if (pedidoGravado.Tamanho != null)
@@ -160,26 +157,19 @@ namespace AcaiAPI.Controllers
                 result.Preco = string.Format("{0:N2}%", valorFormatado);
             }
             result.Personalizacoes = new List<PersonalizacaoModel>();
-            if (pedidoGravado.Personalizacoes != null && pedidoGravado.Personalizacoes.Count > 0)
+            IList<Personalizacao> personalizacoes = _pedidoPersonalizacaoRepository.GetPersonalizacoesPeloPedido(pedidoGravado.Id);
+            if (personalizacoes != null && personalizacoes.Count > 0)
             {
-                foreach (PedidoPersonalizacao item in pedidoGravado.Personalizacoes)
+                foreach (Personalizacao item in personalizacoes)
                 {
                     PersonalizacaoModel personalizacaoModel = new PersonalizacaoModel();
-                    personalizacaoModel.Descricao = item.Personalizacao.Description;
-                    decimal valorAdicionalFormatado = Math.Truncate(item.Personalizacao.ValorAdicional * 100) / 100;
-                    personalizacaoModel.Preco = string.Format("{0:N2}%", valorAdicionalFormatado);
+                    personalizacaoModel.Descricao = item.Description;
+                    decimal valorAdicionalFormatado = Math.Truncate(item.ValorAdicional * 100) / 100;
+                    personalizacaoModel.Preco = string.Format("R$ {0:N2}", valorAdicionalFormatado);
                     result.Personalizacoes.Add(personalizacaoModel);
                 }
             }
-           // long segundos = (pedidoGravado.TempoPreparo / 1000) % 60;
-            //long minutos = (pedidoGravado.TempoPreparo / 60000) % 60;     // 60000   = 60 * 1000
-            //long horas = pedidoGravado.TempoPreparo / 3600000; // 3600000 = 60 * 60 * 1000
 
-            long horas = pedidoGravado.TempoPreparo / 3600000;
-            long minutos = (pedidoGravado.TempoPreparo % 3600000) / 60000;
-
-            //System.out.println(String.format("%03d:%02d:%02d", horas, minutos, segundos));
-            //TimeSpan t = TimeSpan.FromMilliseconds(pedidoGravado.TempoPreparo);
             result.TempoPreparo = string.Format("{0:D2} minutos",
                         pedidoGravado.TempoPreparo);
             decimal valorTotalFormatado = Math.Truncate(pedidoGravado.ValorTotal * 100) / 100;

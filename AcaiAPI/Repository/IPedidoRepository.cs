@@ -11,8 +11,5 @@ namespace AcaiAPI.Repository
         long Add(Pedido pedido);
         IEnumerable<Pedido> GetAll();
         Pedido Find(long id);
-        //void Update(Pedido pedido);
-
-        void AddPersonalizacao(Pedido pedido);
     }
 }
