@@ -40,28 +40,33 @@ namespace AcaiAPI.Controllers
             pedido.SaborId = pedido.Sabor.Id;
             pedido.Tamanho = _tamanhoRepository.Find(value.Tamanho);
             pedido.TamanhoId = pedido.Tamanho.Id;
-            long pedidoId = _pedidoRepository.Add(pedido);
+            //long pedidoId = _pedidoRepository.Add(pedido);
 
-            Pedido pedidoDb = _pedidoRepository.Find(pedidoId);
+            //Pedido pedidoDb = _pedidoRepository.Find(pedidoId);
             List<Personalizacao> personalizacoes = _personalizacaoRepository.GetPersonalizacoesPelosIds(value.Personalizacoes).ToList();
             if(personalizacoes != null && personalizacoes.Count > 0)
             {
-                pedidoDb.Personalizacoes = new List<PedidoPersonalizacao>();
+                pedido.Personalizacoes = new List<PedidoPersonalizacao>();
                 foreach(Personalizacao item in personalizacoes)
                 {
                     PedidoPersonalizacao pedidoPersonalizacao = new PedidoPersonalizacao();
-                    pedidoPersonalizacao.Personalizacao = item;
-                    pedidoPersonalizacao.PersonalizacaoId = item.Id;
-                    pedidoPersonalizacao.Pedido = pedidoDb;
-                    pedidoPersonalizacao.PedidoId = pedidoId;
+                    pedidoPersonalizacao.Personalizacao = new Personalizacao()
+                    {
+                        Id = item.Id,
+                        Description = item.Description,
+                        TempoAdicional = item.TempoAdicional,
+                        ValorAdicional = item.ValorAdicional
+                    };
+                    pedidoPersonalizacao.Pedido = pedido;
+                   
                     //pedidoPersonalizacaos.Add(pedidoPersonalizacao);
-                    pedidoDb.Personalizacoes.Add(pedidoPersonalizacao);
+                    pedido.Personalizacoes.Add(pedidoPersonalizacao);
                 }
                 //pedido.Personalizacoes = pedidoPersonalizacaos;
             }
-            pedidoDb.TempoPreparo = GetTempoPreparo(pedidoDb, personalizacoes);
-            pedidoDb.ValorTotal = GetValorTotal(pedidoDb, personalizacoes);
-            _pedidoRepository.AddPersonalizacao(pedidoDb); // Insertion
+            pedido.TempoPreparo = GetTempoPreparo(pedido, personalizacoes);
+            pedido.ValorTotal = GetValorTotal(pedido, personalizacoes);
+            _pedidoRepository.Add(pedido); // Insertion
             
         }
 
